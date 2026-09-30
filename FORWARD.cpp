@@ -1,123 +1,104 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-#define FOR(i,a,b) for(int i=(a); i<(b); i++)
+#define FOR(i,a,b) for(int i=a;i<b;i++)
 
 int n;
-double h=5;
-double x[100], d[100][100], p[100];
+double x[100],d[100][100],h;
 
 void difference()
 {
     FOR(j,1,n)
         FOR(i,0,n-j)
-            d[i][j] = d[i+1][j-1] - d[i][j-1];
+            d[i][j]=d[i+1][j-1]-d[i][j-1];
 }
 
 double forward(double val)
 {
-    double u = (val-x[0])/h;
-    double y = d[0][0];
-    double c = 1;
+    double u=(val-x[0])/h;
+    double y=d[0][0],c=1;
 
-    FOR(k,1,n)
+    FOR(i,1,n)
     {
-        c = c*(u-k+1)/k;
-        y += c*d[0][k];
+        c=c*(u-i+1)/i;
+        y+=c*d[0][i];
     }
 
     return y;
 }
 
-void printPoly(double p[], int n)
+double error(double a,double b)
 {
-    for(int i=n-1; i>=0; i--)
-    {
-        if(fabs(p[i])<1e-9)
-            continue;
-
-        if(i<n-1 && p[i]>0)
-            cout<<" + ";
-
-        if(p[i]<0)
-            cout<<" - ";
-
-        double c=fabs(p[i]);
-
-        if(i==0)
-            cout<<c;
-        else
-        {
-            if(c!=1)
-                cout<<c;
-
-            cout<<"x";
-
-            if(i>1)
-                cout<<"^"<<i;
-        }
-    }
-
-    cout<<endl;
+    return fabs(a-b);
 }
 
-void makePolynomial()
+void printTable()
 {
-    p[2] = d[0][2]/(2*h*h);
-
-    p[1] = d[0][1]/h
-         - p[2]*(2*x[0]+h);
-
-    p[0] = d[0][0]
-         - p[1]*x[0]
-         - p[2]*x[0]*x[0];
-}
-
-int main()
-{
-    cout<<"Enter number of data points: ";
-    cin>>n;
-
-    cout<<"\nEnter x and y values:\n";
-
-    FOR(i,0,n)
-        cin>>x[i]>>d[i][0];
-
-    difference();
-
-    cout<<"\n(a) Forward Difference Table:\n\n";
+    cout<<"\nForward Difference Table:\n\n";
 
     FOR(i,0,n)
     {
         FOR(j,0,n-i)
             cout<<setw(10)<<d[i][j];
-
         cout<<endl;
     }
+}
 
-    makePolynomial();
+void printPolynomial()
+{
+    cout<<"\nPolynomial:\n";
+    cout<<"y = "<<d[0][0];
 
-    cout<<"\n(b) Polynomial:\n";
-    cout<<"S(x) = ";
-    printPoly(p,3);
+    FOR(i,1,n)
+    {
+        double c=d[0][i];
 
-    double s18=forward(18);
-    double s17=forward(17);
+        FOR(j,1,i+1)
+            c/=j*h;
 
-    cout<<"\nS(18) = "<<s18<<endl;
-    cout<<"S(17) = "<<s17<<endl;
+        if(fabs(c)<1e-9) continue;
 
-    // Given S(25) = 950
-    x[n]=25;
-    d[n][0]=950;
+        if(c>=0) cout<<" + "<<c;
+        else cout<<" - "<<-c;
+
+        FOR(j,0,i)
+            cout<<"(x-"<<x[j]<<")";
+    }
+
+    cout<<endl;
+}
+
+int main()
+{
+    cin>>n;
+
+    FOR(i,0,n)
+        cin>>x[i]>>d[i][0];
+
+    h=x[1]-x[0];
+
+    difference();
+    printTable();
+
+    double s1=forward(18);
+    double s2=forward(17);
+
+    cout<<"\nSolution 1 = "<<s1<<endl;
+    cout<<"Solution 2 = "<<s2<<endl;
+
+    cin>>x[n]>>d[n][0];
     n++;
 
     difference();
 
-    double new_s18=forward(18);
+    double ns1=forward(18);
+    double ns2=forward(17);
 
-    cout<<"\nNew S(18) = "<<new_s18<<endl;
+    cout<<"\nNew Solution 1 = "<<ns1<<endl;
+    cout<<"New Solution 2 = "<<ns2<<endl;
 
-    cout<<"Truncation Error = "
-        <<fabs(new_s18-s18)<<endl;
+    cout<<"\nError 1 = "<<error(s1,ns1)<<endl;
+    cout<<"Error 2 = "<<error(s2,ns2)<<endl;
+
+    printPolynomial();
 }
