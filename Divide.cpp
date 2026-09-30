@@ -1,43 +1,62 @@
 #include<bits/stdc++.h>
 using namespace std;
 
-#define FOR(i,a,b) for(int i=(a); i<(b); i++)
+#define FOR(i,a,b) for(int i=a;i<b;i++)
 
 int n;
-double x[100], d[100][100];
+double x[100],d[100][100];
 
 void difference()
 {
     FOR(j,1,n)
         FOR(i,0,n-j)
-            d[i][j] = (d[i+1][j-1]-d[i][j-1])
-                    / (x[i+j]-x[i]);
+            d[i][j]=(d[i+1][j-1]-d[i][j-1])
+                    /(x[i+j]-x[i]);
 }
 
-double divided(double val)
+double divide(double val)
 {
-    double y = d[0][0];
-    double c = 1;
+    double y=d[0][0],c=1;
 
-    FOR(k,1,n)
+    FOR(i,1,n)
     {
-        c = c*(val-x[k-1]);
-        y += c*d[0][k];
+        c*=val-x[i-1];
+        y+=c*d[0][i];
     }
 
     return y;
 }
 
+double error(double a,double b)
+{
+    return fabs(a-b);
+}
+
+void printTable()
+{
+    cout<<"\nDivided Difference Table:\n\n";
+
+    FOR(i,0,n)
+    {
+        FOR(j,0,n-i)
+            cout<<setw(12)<<d[i][j];
+        cout<<endl;
+    }
+}
+
 void printPolynomial()
 {
+    cout<<"\nPolynomial:\n";
     cout<<"y = "<<d[0][0];
 
     FOR(i,1,n)
     {
+        if(fabs(d[0][i])<1e-9) continue;
+
         if(d[0][i]>=0)
             cout<<" + "<<d[0][i];
         else
-            cout<<" - "<<fabs(d[0][i]);
+            cout<<" - "<<-d[0][i];
 
         FOR(j,0,i)
             cout<<"(x-"<<x[j]<<")";
@@ -48,44 +67,33 @@ void printPolynomial()
 
 int main()
 {
-    
     cin>>n;
 
     FOR(i,0,n)
         cin>>x[i]>>d[i][0];
 
     difference();
+    printTable();
 
-    cout<<"\n(a) Divided Difference Table:\n\n";
+    double s1=divide(18);
+    double s2=divide(17);
 
-    FOR(i,0,n)
-    {
-        FOR(j,0,n-i)
-            cout<<setw(12)<<d[i][j];
+    cout<<"\nSolution 1 = "<<s1<<endl;
+    cout<<"Solution 2 = "<<s2<<endl;
 
-        cout<<endl;
-    }
-
-    cout<<"\n(b) Polynomial :\n";
-    printPolynomial();
-
-    double s18=divided(18);
-    double s7=divided(7);
-
-    cout<<"\nS(18) = "<<s18<<endl;
-    cout<<"S(7) = "<<s7<<endl;
-
-    // Given S(25) = 950
-    x[n]=25;
-    d[n][0]=950;
+    cin>>x[n]>>d[n][0];
     n++;
 
     difference();
 
-    double new_s18=divided(18);
+    double ns1=divide(18);
+    double ns2=divide(17);
 
-    cout<<"\nNew S(18) = "<<new_s18<<endl;
+    cout<<"\nNew Solution 1 = "<<ns1<<endl;
+    cout<<"New Solution 2 = "<<ns2<<endl;
 
-    cout<<"Truncation Error = "
-        <<fabs(new_s18-s18)<<endl;
+    cout<<"\nError 1 = "<<error(s1,ns1)<<endl;
+    cout<<"Error 2 = "<<error(s2,ns2)<<endl;
+
+    printPolynomial();
 }
